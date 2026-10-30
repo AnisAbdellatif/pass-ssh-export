@@ -102,6 +102,11 @@ class MainTests(unittest.TestCase):
         self.run_main({}, "Host x\n", "-C")
         self.assertFalse((self.dir / "config.d").exists())
 
+    def test_no_keys_flag(self):
+        self.run_main({"k1": ("a", PUB_A)}, "Host x\n", "-K")
+        self.assertFalse((self.dir / "a.pub").exists())
+        self.assertTrue((self.dir / "config.d" / "protonpass.conf").exists())
+
     def test_not_logged_in(self):
         def boom(args):
             raise cli.Error("nope")

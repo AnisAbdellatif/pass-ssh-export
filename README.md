@@ -26,10 +26,11 @@ pipx install git+https://github.com/AnisAbdellatif/pass-ssh-export
 ## Usage
 
 ```
-pass-ssh-export [-d DIR] [-c TITLE] [-C] [-f] [-n]
+pass-ssh-export [-d DIR] [-c TITLE] [-C] [-K] [-f] [-n]
   -d, --dir DIR           output directory (default: ~/.ssh)
   -c, --config-title T    title of the note holding the shared config (default: ssh-config)
   -C, --no-config         don't pull the config note
+  -K, --no-keys           don't export the public keys (config note only)
   -f, --force             overwrite existing .pub files whose key differs
   -n, --dry-run           show what would be written
 ```

@@ -268,6 +268,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("-c", "--config-title", default="ssh-config",
                    help="title of the note holding the shared config (default: ssh-config)")
     p.add_argument("-C", "--no-config", action="store_true", help="don't pull the config note")
+    p.add_argument("-K", "--no-keys", action="store_true", help="don't export the public keys")
     p.add_argument("-f", "--force", action="store_true",
                    help="overwrite existing .pub files whose key differs")
     p.add_argument("-n", "--dry-run", action="store_true", help="show what would be written")
@@ -276,7 +277,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.no_keys and args.no_config:
+        parser.error("--no-keys and --no-config leave nothing to do")
     out_dir: Path = args.dir.expanduser()
     try:
         try:
@@ -287,7 +291,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             raise Error("not logged in to Proton Pass, run: pass-cli login") from e
         share_ids = [v["share_id"] for v in pass_json(["vault", "list"]).get("vaults", [])]
         ensure_dir(out_dir, args.dry_run)
-        failed = export_keys(out_dir, share_ids, args.force, args.dry_run)
+        failed = 0
+        if not args.no_keys:
+            failed = export_keys(out_dir, share_ids, args.force, args.dry_run)
         if not args.no_config:
             sync_config(out_dir, share_ids, args.config_title, args.dry_run)
         return 1 if failed else 0
